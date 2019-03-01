@@ -59,28 +59,40 @@ usermod -aG docker jlaberge
 
 # setup environment
 yump guake zsh
-
-git clone https://github.com/zsh-users/zsh-completions ~/.oh-my-zsh/custom/plugins/zsh-completions
-
 hostnamectl set-hostname 'konoha.local'
 hostnamectl set-hostname --pretty 'Konoha - Village Hidden in the Leaves'
 git clone https://github.com/horst3180/arc-theme --depth 1 && cd arc-theme
 ./autogen.sh
 make install
-
 wget http://us.download.nvidia.com/XFree86/Linux-x86_64/410.93/NVIDIA-Linux-x86_64-410.93.run -P /tmp
 /tmp/NVIDIA-Linux-x86_64-410.93.run
 
 
 # setup environment for user
+# change default shell to zsh
+usermod -s '/bin/zsh' jlaberge
+
+# copy zshrc file and setup oh-my-zsh
+cp .zshrc /home/jlaberge/
 cd /home/jlaberge
+wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh
+git clone https://github.com/zsh-users/zsh-completions ~/.oh-my-zsh/custom/plugins/zsh-completions
 wget https://raw.githubusercontent.com/rupa/z/master/z.sh
 printf "\n\n#initialize Z (https://github.com/rupa/z) \n. ~/z.sh \n\n" >> .bashrc
 chown -R jlaberge:jlaberge z.sh
-chmod 600 z.sh
+chown -R jlaberge:jlaberge .oh-my-zsh
+chown  jlaberge:jlaberge .zshrc
+chmod -R 600 z.sh
+chmod -R .oh-my-zsh
+chmod 600 .zshrc 
 
-https://github.com/keepassxreboot/keepassxc/releases/download/2.3.4/KeePassXC-2.3.4-x86_64.AppImage
+mkdir -p /usr/lib/appimages/keepassxc
+wget https://github.com/keepassxreboot/keepassxc/releases/download/2.3.4/KeePassXC-2.3.4-x86_64.AppImage -P /usr/lib/appimages/keepassxc
 chmod +x KeePassXC-2.3.4-x86_64.AppImage
-./KeePassXC-2.3.4-x86_64.AppImage
 
 cp /usr/share/applications/guake.desktop /etc/xdg/autostart/
+
+# set default kernel and reboot
+grub2-set-default 0
+grub2-mkconfig -o /boot/grub2/grub.cfg
+reboot
